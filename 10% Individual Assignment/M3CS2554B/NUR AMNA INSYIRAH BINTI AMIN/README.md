@@ -2,16 +2,18 @@
 # ITT440-INDIVIDUAL ASSIGNMENT 
 # CLASSIFICATION OF LARGE-SCALE NUMERIC DATASET 
 
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/24d630db-f607-42e2-b653-a0e775b89188" />
+
 # INTRODUCTION 
 This project focuses on the implementation and performance evaluation of parallel programming techniques using Python. The task involves classifying a massive dataset of **5,000,000 numeric records** into three distinct categories (Category A, B, and C) based on CPU-bound mathematical logic. This project demonstrates how hardware resources can be optimized to reduce execution time in data-heavy environments. 
 
 Three distinct categories:
 
-**Category A:** 
+**Category A:** Result of calculation > 500
 
-**Category B:**
+**Category B:** Result of calculation > 200
 
-**Category C:** 
+**Category C:** Result of calculation ≤ 200
 
 # PROBLEM STATEMENT 
 In traditional sequential programming, tasks are processed one after another using only a single CPU core. When dealing with millions of data points, this creates a significant performance bottleneck, leaving modern multi-core processors underutilized. This project addresses the inefficiency of single-threaded execution by implementing **Multiprocessing** allowing the workload to be distributed across all available logical processors. 
@@ -36,24 +38,46 @@ The classification logic involves complex mathematical operations to simulate a 
 2. **Threading:** Using 'ThreadPoolExecutor' (Concurrency).
 3. **Multiprocessing:** Using 'ProcessPoolExecutor' (True Parallelism).
 
-# IMPLEMENTATION 
+# INSTALLATION & SETUP GUIDE 
 
-     import time
-     import numpy as np
-     import os
-    # Importing concurrent.futures for both Threading and Multiprocessing
-    from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-    # --- 1. CLASSIFICATION LOGIC FUNCTION (CPU-BOUND) ---
-    def classify_data(data_chunk):
+1. Install VSCode
+2. Install Python 3.13
+3. Install libraries in VSCode
+   ```bash
+   pip install numpy pandas matplotlib
+   ```
+4. Run the script
+   ```bash
+   python main_script.py
+   ```
+
+# IMPLEMENTATION CODE
+```python
+   import time
+import numpy as np
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+
+# --- 1. CLASSIFICATION LOGIC WITH WATERFALL EFFECT ---
+def classify_data(data_chunk, worker_type="Worker"):
     """
-    This function performs heavy mathematical calculations to 
-    classify numeric data into Category A, B, or C.
+    Performs heavy math calculations and prints status updates 
+    to create a 'waterfall' effect in the terminal.
     """
+    process_id = os.getpid()
     results = []
-    for val in data_chunk:
-        # Simulate heavy CPU workload using square roots and trigonometry
+    
+    # We use enumerate to print progress every 500 rows
+    for i, val in enumerate(data_chunk):
+        # Heavy CPU workload (Trigonometry + Logarithms)
         calc = np.sqrt(val**2 + np.log1p(val)) * np.sin(val)
         
+        # WATERFALL EFFECT: Print status every 500 items
+        if i % 500 == 0:
+            print(f"[{worker_type}] PID:{process_id} | Index:{i} | Value:{val:.2f} | Status: OK")
+            
         if calc > 500:
             results.append("Category A")
         elif calc > 200:
@@ -61,73 +85,97 @@ The classification logic involves complex mathematical operations to simulate a 
         else:
             results.append("Category C")
             
-    return len(results)
-    
-      def main():
-    # --- 2. GENERATING LARGE VOLUME DATA ---
+    return results
+
+# --- 2. HELPER FUNCTIONS (REQUIRED FOR WINDOWS MULTIPROCESSING) ---
+# Windows Multiprocessing does not support 'lambda' functions.
+# These named functions allow the ProcessPool to 'pickle' the tasks correctly.
+def classify_process_helper(chunk):
+    return classify_data(chunk, "Process")
+
+def classify_thread_helper(chunk):
+    return classify_data(chunk, "Thread")
+
+def main():
+    # --- 3. GENERATING DATA ---
     print("="*60)
-    print("PROJECT: CLASSIFICATION OF LARGE-SCALE NUMERIC DATASET")
+    print("PROJECT: PARALLEL COMPUTING - 5 MILLION DATA CLASSIFICATION")
     print("="*60)
     
-     # Using 5 million rows to ensure the performance difference is visible
     data_size = 5_000_000  
     print(f"Status: Generating {data_size:,} random numeric data points...")
     data = np.random.uniform(1, 1000, data_size)
     
-    # Split data into chunks based on the number of available CPU cores
     cpu_cores = os.cpu_count()
     data_chunks = np.array_split(data, cpu_cores)
-    print(f"System Info: Detected {cpu_cores} CPU cores.\n")
+    print(f"System Info: Detected {cpu_cores} Logical Processors.\n")
 
-    # --- 3. SEQUENTIAL EXECUTION (BASELINE) ---
+    # --- 4. SEQUENTIAL EXECUTION (BASELINE) ---
     print("--- Running Sequential Approach ---")
-    # Processing the entire dataset in a single thread/process
     start_time = time.perf_counter()
-    classify_data(data)
-    sequential_duration = time.perf_counter() - start_time
-    print(f"Sequential Execution Time: {sequential_duration:.4f} seconds\n")
+    # We process a 100k sample to avoid waiting minutes for the baseline
+    classify_data(data[:100000], "Sequential") 
+    # Calculate estimated duration for the full 5 million
+    sequential_duration = (time.perf_counter() - start_time) * (data_size/100000)
+    print(f"Sequential Execution Time (Estimated): {sequential_duration:.4f} seconds\n")
 
-    # --- 4. CONCURRENT EXECUTION (THREADING) ---
+    # --- 5. CONCURRENT EXECUTION (THREADING) ---
     print("--- Running Concurrent Approach (Threading) ---")
-    # Using ThreadPoolExecutor to demonstrate concurrency
     start_time = time.perf_counter()
     with ThreadPoolExecutor(max_workers=cpu_cores) as executor:
-        list(executor.map(classify_data, data_chunks))
+        list(executor.map(classify_thread_helper, data_chunks))
     threading_duration = time.perf_counter() - start_time
-    print(f"Threading Execution Time: {threading_duration:.4f} seconds")
-    print("Note: Threading may be slow for math due to the Global Interpreter Lock (GIL).\n")
+    print(f"Threading Execution Time: {threading_duration:.4f} seconds\n")
 
-    # --- 5. PARALLEL EXECUTION (MULTIPROCESSING) ---
+    # --- 6. PARALLEL EXECUTION (MULTIPROCESSING) ---
     print("--- Running Parallel Approach (Multiprocessing) ---")
-    # Using ProcessPoolExecutor to demonstrate true parallelism
     start_time = time.perf_counter()
+    final_results = []
     with ProcessPoolExecutor(max_workers=cpu_cores) as executor:
-        list(executor.map(classify_data, data_chunks))
+        # Collecting results for the CSV output
+        for res in executor.map(classify_process_helper, data_chunks):
+            final_results.extend(res)
+            
     multiprocessing_duration = time.perf_counter() - start_time
-    print(f"Multiprocessing Execution Time: {multiprocessing_duration:.4f} seconds")
-    print("Note: This bypasses the GIL and utilizes all CPU cores.\n")
+    print(f"Multiprocessing Execution Time: {multiprocessing_duration:.4f} seconds\n")
 
-    # --- 6. PERFORMANCE SUMMARY ---
+    # --- 7. SAVE RESULTS TO CSV (10,000 SAMPLE ROWS) ---
+    print("Saving sample results to 'output_results.csv'...")
+    # Saving only a sample to keep the file size manageable for GitHub
+    df = pd.DataFrame({'Input_Value': data[:10000], 'Category': final_results[:10000]})
+    df.to_csv('output_results.csv', index=False)
+    print("[✓] CSV Saved.\n")
+
+    # --- 8. PERFORMANCE SUMMARY & VISUALIZATION ---
     print("="*60)
     speedup_ratio = sequential_duration / multiprocessing_duration
     print(f"RESULTS: Parallelism is {speedup_ratio:.2f}x faster than Sequential!")
     print("="*60)
 
-    if __name__ == "__main__":
+    # Plotting the Performance Graph
+    methods = ['Sequential', 'Threading', 'Multiprocessing']
+    times = [sequential_duration, threading_duration, multiprocessing_duration]
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(methods, times, color=['#ff79c6', '#bd93f9', '#8be9fd'])
+    plt.ylabel('Time (Seconds)')
+    plt.title('Performance Analysis: Sequential vs Threading vs Multiprocessing')
+    
+    # Save the graph as an image for your GitHub README
+    plt.savefig('performance_graph.png')
+    print("Graph saved as 'performance_graph.png'. Displaying plot...")
+    plt.show()
+
+  if __name__ == "__main__":
     main()
-
-
+   ```
 # PERFORMANCE RESULT & OBSERVATION 
-<img width="605" height="666" alt="image" src="https://github.com/user-attachments/assets/e462a030-3368-465b-b0ee-acc973701eaa" />
-<img width="745" height="231" alt="image" src="https://github.com/user-attachments/assets/4a33f7ec-b331-4710-9fad-3f8e84d08b08" />
-<img width="617" height="83" alt="image" src="https://github.com/user-attachments/assets/1d575abb-3e8f-4b8f-811f-5935b428de91" />
+<img width="752" height="442" alt="image" src="https://github.com/user-attachments/assets/38a3612a-c5d9-462a-8f39-23eb865ee38c" />
 
-| Approach | Execution Time ( Second ) |
-| :--- | :--- |
-| **Sequential** | 8.4396s |
-| **Threading** | 7.6682s |
-| **Multiprocessing** | 3.0576s | 
+RESULTS: Parallelism is 1.60x faster than Sequential
+
 
 # CONCLUSION 
+The results clearly indicate that Multiprocessing is the superior approach for CPU-bound tasks in Python. While Threading offers slight improvements, it is still hindered by the GIL. Multiprocessing effectively distributed the 5 million data points across all 12 logical processors, proving that hardware-aware programming is essential for large-scale data science and engineering tasks.
 
 # VIDEO DEMONSTATION 
