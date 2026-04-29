@@ -90,39 +90,47 @@ Enter number of processes: 4
 ========== BAGGAGE ANALYTICS REPORT ==========
 
 Baggage distribution:
-KUL: 16654 bags (16.65%)
-JHB: 16713 bags (16.71%)
-PEN: 16621 bags (16.62%)
-LGK: 16678 bags (16.68%)
-BKI: 16658 bags (16.65%)
-KCH: 16676 bags (16.68%)
+KUL: 167410 bags (16.74%)
+JHB: 166602 bags (16.66%)
+PEN: 166495 bags (16.65%)
+LGK: 166977 bags (16.70%)
+BKI: 166240 bags (16.62%)
+KCH: 166276 bags (16.63%)
 
-Total baggage processed: 100000
+Total baggage processed: 1000000
 
-Busiest destination: JHB (16713 bags)
-Least busy destination: PEN (16621 bags)
+Busiest destination: KUL (167410 bags)
+Least busy destination: BKI (166240 bags)
 
-Total processing load: 1532849210
-Average load per bag: 15328
+Total processing load: 191919855605
+Average load per bag: 191919
 
 ========== PERFORMANCE ==========
-Sequential      : 8.5000s
-Threading       : 6.9000s
-Multiprocessing : 3.2000s
+Sequential      : 169.2737s
+Threading       : 179.4243s
+Multiprocessing : 59.3737s
 Fastest Method  : Multiprocessing
 ```
+<img width="1919" height="941" alt="Screenshot 2026-04-30 034616" src="https://github.com/user-attachments/assets/1340fc36-b527-41e8-a769-61efc9de2dfe" />
 
 
 ## ANALYTIC
-| Destination               | Number of Bag  | 
-|---------------------------|----------------| 
-| KUL                       | 4 568 bags    | 
-| JHB                       | 4,568 bags    | 
-| PEN                       | 4,568 bags    | 
-| LGK                       | 2,284 bags    | 
-| BKI                       | 2,284 bags    | 
-| KCH                       | 2,284 bags    |
-| **Total Processing Load** | **18,272**     |
+| Destination | Number of Bags | Percentage |
+|-------------|---------------|------------|
+| KUL         | 167410 bags    | 16.74%     |
+| JHB         | 166602 bags    | 16.66%     |
+| PEN         | 166495 bags    | 16.65%     |
+| LGK         | 166977 bags    | 16.70%      |
+| BKI         | 166240 bags    | 16.62%      |
+| KCH         | 166276 bags    | 16.63%      |
+
+| Metric                     | Value            |
+|---------------------------|------------------|
+| Total Baggage Processed   | 1000000           |
+| Busiest Destination       | KUL (167410 bags) |
+| Least Busy Destination    | BKI (166240 bags) |
+| Total Processing Load     | 191919855605    |
+| Average Load per Bag      | 191919          |
 
 
 
