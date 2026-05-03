@@ -1,6 +1,7 @@
 # 📈 CUSTOMER FEEDBACK ANALYZER
 NAME: SITI NURUL NAJWA BINTI NORDIN <br>
-STUDENT ID: 2024423364
+STUDENT ID: 2024423364 <br>
+YOUTUBE LINK: https://youtu.be/lbxqbhHVkCk
 # USER MANUAL & TECHNICAL DOCUMENTATION
 Welcome to the Customer Feedback Analyzer. This tool is designed to process large-scale customer feedback data and provides a performance benchmarking suite to analyze how different Python concurrency models (Sequential, Threading, and Multiprocessing) handle CPU-bound workloads.
 # SYSTEM REQUIREMENTS
@@ -12,11 +13,10 @@ Welcome to the Customer Feedback Analyzer. This tool is designed to process larg
     * **multiprocessing** (Standard library)
     * **threading** (Standard library)
 # 📥 Installation Steps
-1. **Clone or Download:** git clone https://github.com/kiddygo1up/gui_analyzer.git <br>
-cd gui_analyzer
-2. **Install Dependencies:** Ensure matpotlib is installed in your environment <br> pip install matpotlib <br>
+1. **Clone or Download:** git clone https://github.com/kiddygo1up/gui_analyzer.git <br> _cd gui_analyzer_
+2. **Install Dependencies:** Ensure matpotlib is installed in your environment <br> _pip install matpotlib_ <br>
 # 🚀 How to Run 
-Once installed, execute the script from your terminal: python main.py <br> 
+Once installed, execute the script from your terminal: _python main.py_ <br> 
 # 📖 User Manual
 The application is divided into three distinct stages: <br> <br>
 **Step 1: Data Management**
